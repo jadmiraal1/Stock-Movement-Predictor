@@ -11,11 +11,11 @@ The goal is to develop a model that is:
 
 ## Installation
 
-git clone https://github.com/jadmiraal1/Stock-Movement-Predictor.git
-cd Stock-Movement-Predictor
+git clone https://github.com/jadmiraal1/Stock-Movement-Predictor.git  
+cd Stock-Movement-Predictor  
+  
+python -m venv venv  
+source venv/bin/activate      # On Windows: venv\Scripts\activate  
 
-python -m venv venv
-source venv/bin/activate      # On Windows: venv\Scripts\activate
-
-pip install --upgrade pip
-pip install -r requirements.txt
+pip install --upgrade pip  
+pip install -r requirements.txt  
