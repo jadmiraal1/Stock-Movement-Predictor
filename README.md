@@ -18,4 +18,20 @@ pip install -r requirements.txt
 ## Installation (Conda-based)
 
 conda env create -f environment.yml  
-conda activate stock-predictor-env  
+conda activate stock-predictor-env =
+The goal is to develop a model that is:  
+-More informative than price data alone, by including market sentiment signals  
+-Fully backtestable, with clear performance metrics  
+-Deployable for paper or live trading, using APIs like Alpaca  
+
+## Installation
+
+git clone https://github.com/jadmiraal1/Stock-Movement-Predictor.git  
+cd Stock-Movement-Predictor  
+  
+python -m venv venv  
+source venv/bin/activate      # On Windows: venv\Scripts\activate  
+
+pip install --upgrade pip  
+pip install -r requirements.txt  
+>>>>>>> origin/main
