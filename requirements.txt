@@ -1,0 +1,21 @@
+# Core
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+
+# Time series & sentiment
+yfinance
+vaderSentiment
+
+# Transformer Models
+torch
+transformers
+
+# Alpaca for trading
+alpaca-trade-api
+
+# Optional utilities
+tqdm
+python-dotenv
