@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import os
 import csv
 import praw
@@ -12,7 +11,6 @@ reddit = praw.Reddit(
 )
 
 # 2) Configuration
-=======
 import praw
 from datetime import datetime, timezone
 import os, csv
