@@ -1,4 +1,3 @@
-
 tickers:
   - AAPL
   - TSLA
@@ -10,3 +9,10 @@ end_date:   "2025-06-23"
 prediction_horizon: 3
 
 sentiment_window_days: 1
+
+sentiment_raw_dir: "data/raw/sentiment_text"
+sentiment_output_dir: "data/raw/sentiment"
+
+sentiment_method:
+  method: "transformer"       
+  model_name: "ProsusAI/finbert"  
