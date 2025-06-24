@@ -1,134 +1,119 @@
 import os
+import time
+import sqlite3
+
 import yaml
 import pandas as pd
 import yfinance as yf
 
 
 class DataLoader:
-    """
-    DataLoader handles downloading price data, loading sentiment data,
-    merging features, computing technical indicators, and generating labels.
-    """
     def __init__(self, config_path="config/config.yaml"):
-        # Load configuration
+        # Load config
         with open(config_path, "r") as f:
-            self.config = yaml.safe_load(f)
+            cfg = yaml.safe_load(f)
+        self.tickers    = cfg["tickers"]
+        self.start      = cfg["start_date"]
+        self.end        = cfg["end_date"]
+        s_cfg           = cfg["sentiment"]
+        dl_cfg          = cfg["data_loader"]
 
-        self.tickers = self.config.get("tickers", [])
-        self.pred_horizon = self.config.get("prediction_horizon", 3)
-        self.sentiment_window = self.config.get("sentiment_window_days", 1)
-        self.start_date = self.config.get("start_date")
-        self.end_date = self.config.get("end_date")
-        self.sentiment_dir = self.config.get("sentiment_output_dir", "data/raw/sentiment")
+        self.sent_raw_dir  = s_cfg["raw_data_dir"]
+        self.sent_out_dir  = s_cfg["output_dir"]
+        self.proc_path     = dl_cfg["processed_data_path"]
+
+        # Make sure output folders exist
+        os.makedirs(os.path.dirname(self.proc_path), exist_ok=True)
 
     def download_price_data(self):
-        """
-        Download OHLCV price data for configured tickers.
-        Returns a DataFrame with columns: Date, Ticker, Open, High, Low, Close, Volume.
-        """
-        raw = yf.download(
-            tickers=self.tickers,
-            start=self.start_date,
-            end=self.end_date,
-            group_by='ticker',
-            auto_adjust=True,
-            progress=False
-        )
-        df_list = []
+        """Download OHLCV for each ticker, retrying on SQLite lock."""
+        price_frames = []
+        failed = []
+
         for ticker in self.tickers:
-            temp = raw[ticker].reset_index()
-            temp['Ticker'] = ticker
-            df_list.append(temp)
-        price_df = pd.concat(df_list, ignore_index=True)
-        price_df = price_df.rename(columns={
-            'Date': 'Date', 'Open': 'Open', 'High': 'High',
-            'Low': 'Low', 'Close': 'Close', 'Volume': 'Volume'
-        })
-        return price_df
+            attempts = 0
+            df = None
+            while attempts < 3:
+                try:
+                    df = yf.download(
+                        ticker,
+                        start=self.start,
+                        end=self.end,
+                        threads=False  # disable threaded caching
+                    )
+                    break
+                except sqlite3.OperationalError:
+                    attempts += 1
+                    print(f"⚠️  database locked for {ticker}, retry {attempts}/3")
+                    time.sleep(2)
+
+            if df is None or df.empty:
+                print(f"❌  Giving up on {ticker} after {attempts} retries")
+                failed.append(ticker)
+                continue
+
+            df = df.reset_index()
+            df["Ticker"] = ticker
+            price_frames.append(df)
+
+        if failed:
+            print(f"⚠️  Failed downloads for: {failed}")
+        return pd.concat(price_frames, ignore_index=True)
 
     def load_sentiment_data(self):
-        """
-        Load all sentiment CSV files from the configured sentiment_output_dir.
-        Assumes each CSV has columns: timestamp, ticker, sentiment_score.
-        Returns a concatenated DataFrame.
-        """
-        dir_path = self.sentiment_dir
-        if not os.path.isdir(dir_path):
-            raise FileNotFoundError(f"Sentiment directory not found: {dir_path}")
-        files = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if f.endswith('.csv')]
-        if not files:
-            raise FileNotFoundError(f"No sentiment CSV files found in {dir_path}")
-        dfs = []
-        for fp in files:
-            df = pd.read_csv(fp, parse_dates=['timestamp'])
-            dfs.append(df)
-        sentiment_df = pd.concat(dfs, ignore_index=True)
-        return sentiment_df
+        """Read per‐ticker sentiment CSVs and combine into one DataFrame."""
+        frames = []
+        for fn in os.listdir(self.sent_out_dir):
+            if not fn.lower().endswith(".csv"):
+                continue
+            df = pd.read_csv(os.path.join(self.sent_out_dir, fn))
+            # Ensure Date is timezone-naive to match price data
+            df["Date"] = pd.to_datetime(df["Date"]).dt.tz_localize(None)
+            frames.append(df)
+        return pd.concat(frames, ignore_index=True)
 
     def merge_data(self, price_df, sentiment_df):
-        """
-        Merge price and sentiment data on Date and Ticker.
-        Computes daily average sentiment and fills missing values with 0.
-        """
-        sentiment_df['Date'] = sentiment_df['timestamp'].dt.floor('D')
-        daily_sent = (
-            sentiment_df
-            .groupby(['Date', 'ticker'])['sentiment_score']
-            .mean()
-            .reset_index()
-            .rename(columns={'ticker': 'Ticker'})
+        """Left‐merge price + sentiment on Date+Ticker."""
+        merged = price_df.merge(
+            sentiment_df,
+            on=["Date", "Ticker"],
+            how="left"
         )
-        merged = price_df.merge(daily_sent, how='left', on=['Date', 'Ticker'])
-        merged['sentiment_score'] = merged['sentiment_score'].fillna(0.0)
-        merged = merged.sort_values(['Ticker', 'Date']).reset_index(drop=True)
+        # Fill any missing sentiment with zero or neutral value
+        merged["sentiment_score"] = merged["sentiment_score"].fillna(0.0)
         return merged
 
-    def add_technical_indicators(self, df):
-        """
-        Add basic technical indicators to DataFrame:
-        - Daily returns
-        - Moving averages (10-day, 50-day)
-        """
-        df['return'] = df.groupby('Ticker')['Close'].pct_change()
-        df['ma10'] = df.groupby('Ticker')['Close'].transform(lambda x: x.rolling(window=10).mean())
-        df['ma50'] = df.groupby('Ticker')['Close'].transform(lambda x: x.rolling(window=50).mean())
-        return df
-
-    def add_labels(self, df):
-        """
-        Create target labels based on future price movement:
-        - future_close: Close price shifted by -prediction_horizon days
-        - label: 1 if future_return > 0 else 0
-        """
-        df['future_close'] = df.groupby('Ticker')['Close'].shift(-self.pred_horizon)
-        df['future_return'] = (df['future_close'] - df['Close']) / df['Close']
-        df['label'] = (df['future_return'] > 0).astype(int)
-        df = df.drop(columns=['future_close', 'future_return'])
-        return df
+    def add_indicators_and_labels(self, df):
+        """Compute simple moving averages, returns & binary labels."""
+        df = df.sort_values(["Ticker", "Date"])
+        # Example indicators
+        df["return"] = df.groupby("Ticker")["Close"].pct_change()
+        df["ma10"]   = df.groupby("Ticker")["Close"].rolling(10).mean().reset_index(0,drop=True)
+        df["ma50"]   = df.groupby("Ticker")["Close"].rolling(50).mean().reset_index(0,drop=True)
+        # Label = 1 if next-day return > 0, else 0
+        df["label"]  = (df.groupby("Ticker")["return"].shift(-1) > 0).astype(int)
+        return df.dropna(subset=["return", "ma10", "ma50", "label"])
 
     def process(self):
-        """
-        Orchestrate the full data loading and processing pipeline:
-        1. Download price data
-        2. Load sentiment data
-        3. Merge datasets
-        4. Add technical indicators
-        5. Generate labels
-        6. Save processed data to CSV
-        Returns final DataFrame.
-        """
+        # 1) Download price data
         price_df = self.download_price_data()
-        sentiment_df = self.load_sentiment_data()
-        merged_df = self.merge_data(price_df, sentiment_df)
-        feats_df = self.add_technical_indicators(merged_df)
-        final_df = self.add_labels(feats_df)
-        os.makedirs('data/processed', exist_ok=True)
-        final_df.to_csv('data/processed/processed_data.csv', index=False)
+
+        # 2) Load sentiment scores
+        sent_df  = self.load_sentiment_data()
+
+        # 3) Merge
+        merged   = self.merge_data(price_df, sent_df)
+
+        # 4) Indicators + labels
+        final_df = self.add_indicators_and_labels(merged)
+
+        # 5) Write out
+        final_df.to_csv(self.proc_path, index=False)
+        print(f"✅ Wrote processed data to {self.proc_path}")
         return final_df
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     loader = DataLoader()
-    df = loader.process()
-    print(f"Processed data saved with shape: {df.shape}")
+    loader.process()
 
