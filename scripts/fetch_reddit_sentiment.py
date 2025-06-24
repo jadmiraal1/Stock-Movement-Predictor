@@ -5,8 +5,8 @@ from datetime import datetime, timezone
 
 # Initialize with your real credentials
 reddit = praw.Reddit(
-    client_id="IZ-EhbjZECcYYTfMi2nBDg",
-    client_secret="K8pO4mW4cUO1HY63IMZeIwgrNbRliQ",
+    client_id="lZ-EhbJzECEyYTfMi2nBDg",
+    client_secret="K8pO4mW4cUO1HY63lMZelwgrNbRliQ",
     user_agent="stock-sentiment/0.1 by Unhappy-One145"
 )
 
