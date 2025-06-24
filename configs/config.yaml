@@ -1,1 +1,12 @@
 
+tickers:
+  - AAPL
+  - TSLA
+  - NVDA
+
+start_date: "2022-01-01"
+end_date:   "2025-06-23"
+
+prediction_horizon: 3
+
+sentiment_window_days: 1
