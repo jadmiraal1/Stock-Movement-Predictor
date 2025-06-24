@@ -1,4 +1,4 @@
-#project chubby jared
+# Stock Movement Predictor
 
 This project aims to build a stock movement prediction system that leverages both historical price data and real-time sentiment analysis from financial news and social media.
 By combining transformer-based models (e.g., BERT/FinBERT) for natural language understanding with time-series modeling of stock prices, we create a hybrid machine learning
