@@ -9,13 +9,13 @@ The goal is to develop a model that is:
 -Fully backtestable, with clear performance metrics
 -Deployable for paper or live trading, using APIs like Alpaca
 
-## Installation (pip-based)
+## Installation
 
-python -m venv venv  
-source venv/bin/activate  # or venv\Scripts\activate on Windows  
-pip install -r requirements.txt  
+git clone https://github.com/jadmiraal1/Stock-Movement-Predictor.git
+cd Stock-Movement-Predictor
 
-## Installation (Conda-based)
+python -m venv venv
+source venv/bin/activate      # On Windows: venv\Scripts\activate
 
-conda env create -f environment.yml  
-conda activate stock-predictor-env  
+pip install --upgrade pip
+pip install -r requirements.txt
