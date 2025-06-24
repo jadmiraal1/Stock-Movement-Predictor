@@ -1,12 +1,10 @@
-import praw
+import os, praw, csv
 from datetime import datetime, timezone
-import os, csv
 
-# ← Replace these with your actual credentials
 reddit = praw.Reddit(
-    client_id="IZ-EhbjZECcYYTfMi2nBDg",
-    client_secret="K8pO4mW4cUO1HY63IMZeIwgrNbRliQ",
-    user_agent="stock-sentiment/0.1 by Unhappy-One145"
+    client_id=os.environ["REDDIT_CLIENT_ID"],
+    client_secret=os.environ["REDDIT_CLIENT_SECRET"],
+    user_agent=os.environ["REDDIT_USER_AGENT"]
 )
 
 TICKERS = ["AAPL", "TSLA", "NVDA"]
