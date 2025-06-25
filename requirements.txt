@@ -1,16 +1,12 @@
-PyYAML>=5.3.1
-pandas>=1.1.0
-yfinance>=0.1.70
-nltk>=3.5
-transformers>=4.0.0
-torch>=1.7.0
-scikit-learn>=0.24.0
-matplotlib>=3.3.0
-<<<<<<< Updated upstream
-praw>=7.4.0
-=======
-<<<<<<< HEAD
-=======
-praw>=7.4.0
->>>>>>> 12d142cf135db447f6bd6b1a4917ac86d6a95e75
->>>>>>> Stashed changes
+pandas
+numpy
+yfinance
+scikit-learn
+transformers
+torch
+vaderSentiment
+matplotlib
+seaborn
+requests
+tqdm
+PyYAML
