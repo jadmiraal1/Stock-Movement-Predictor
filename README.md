@@ -45,3 +45,6 @@ pip install -r requirements.txt
 =======
 >>>>>>> 12d142cf135db447f6bd6b1a4917ac86d6a95e75
 >>>>>>> Stashed changes
+
+Future Directions  
+How do different stocks affect each other?
