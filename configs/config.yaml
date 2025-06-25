@@ -1,18 +1,53 @@
+# 1) Universe & dates
 tickers:
-  - AAPL
-  - TSLA
   - NVDA
 
 start_date: "2022-01-01"
-end_date:   "2025-06-23"
+end_date: "2025-06-23"
 
-prediction_horizon: 3
+# 2) Prediction settings
+prediction_horizon: 3  # days ahead
 
-sentiment_window_days: 1
-
-sentiment_raw_dir: "data/raw/sentiment_text"
+# 3) Paths
+raw_price_dir: "data/raw/price"
+raw_sentiment_text_dir: "data/raw/sentiment_text"
 sentiment_output_dir: "data/raw/sentiment"
+processed_data_dir: "data/processed"
+models_dir: "models"
+reports_dir: "reports"
+logs_dir: "logs"
 
+# 4) Sentiment analysis
 sentiment_method:
-  method: "transformer"       
-  model_name: "ProsusAI/finbert"  
+  method: "transformer"
+  model_name: "ProsusAI/finbert"
+sentiment_window_days: 1  # aggregate sentiment over this many days
+
+# 5) Feature‐engineering parameters
+feature_engineering:
+  ma_short_window: 5   # moving average window (short)
+  ma_long_window: 20   # moving average window (long)
+  volatility_window: 10  # rolling volatility window
+
+# 6) Model hyperparameters
+model:
+  type: "MLP"
+  hidden_layers:
+    - 64
+    - 32
+  dropout_rate: 0.2
+  learning_rate: 0.001
+  epochs: 50
+  batch_size: 32
+
+# 7) Backtest settings
+backtest:
+  initial_capital: 100000
+  transaction_cost: 0.001  # fraction per trade
+
+# 8) Alpaca (for paper/live trading)
+alpaca:
+  api_key: "YOUR_API_KEY"
+  secret_key: "YOUR_SECRET_KEY"
+  base_url: "https://paper-api.alpaca.markets"
+  paper_trading: true
