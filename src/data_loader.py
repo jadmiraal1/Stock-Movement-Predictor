@@ -2,7 +2,7 @@ import os
 import yaml
 import yfinance as yf
 
-def load_config(path="config.yaml"):
+def load_config(path="/configs/config.yaml"):
     with open(path) as f:
         return yaml.safe_load(f)
 
