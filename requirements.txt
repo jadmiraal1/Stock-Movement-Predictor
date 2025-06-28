@@ -10,3 +10,4 @@ seaborn
 requests
 tqdm
 PyYAML
+nltk
