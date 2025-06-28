@@ -53,3 +53,31 @@ alpaca:
   secret_key: "YOUR_SECRET_KEY"
   base_url: "https://paper-api.alpaca.markets"
   paper_trading: true
+
+# 9) News API (NewsAPI.org)
+newsapi_key: "f0b2171517b54b979d9228ffdbf12ff2"
+
+# 10) Twitter API (v2)
+twitter_bearer_token: "YOUR_TWITTER_BEARER_TOKEN"
+
+# 11) Reddit API (PRAW)
+reddit:
+  client_id: "YOUR_REDDIT_CLIENT_ID"
+  client_secret: "YOUR_REDDIT_CLIENT_SECRET"
+  user_agent: "stock-sentiment-bot/0.1"
+
+# 12) RSS feeds for financial blogs
+rss_feeds:
+  "https://www.reutersagency.com/feed/?best-sectors=finance"
+  "https://www.marketwatch.com/rss"
+
+# 13) SEC EDGAR filings
+edgar:
+  download_dir: "data/raw/edgar"
+  user_agent: "your_email@example.com"
+  filings_to_fetch:
+    - "10-K"
+    - "10-Q"
+
+
+  
