@@ -1,5 +1,7 @@
 # 1) Universe & dates
 tickers:
+  - AAPL
+  - GOOG
   - NVDA
 
 start_date: "2022-01-01"
