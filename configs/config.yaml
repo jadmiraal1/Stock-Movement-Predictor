@@ -5,53 +5,53 @@ tickers:
   - NVDA
 
 start_date: "2022-01-01"
-end_date: "2025-06-23"
+end_date:   "2025-06-23"
 
 # 2) Prediction settings
 prediction_horizon: 3  # days ahead
 
 # 3) Paths
-raw_price_dir: "data/raw/price"
-raw_sentiment_text_dir: "data/raw/sentiment_text"
-sentiment_output_dir: "data/raw/sentiment"
-processed_data_dir: "data/processed"
-models_dir: "models"
-reports_dir: "reports"
-logs_dir: "logs"
+raw_price_dir:            "data/raw/price"
+raw_sentiment_text_dir:   "data/raw/sentiment_text"
+sentiment_output_dir:     "data/raw/sentiment"
+processed_data_dir:       "data/processed"
+models_dir:               "models"
+reports_dir:              "reports"
+logs_dir:                 "logs"
 
 # 4) Sentiment analysis
 sentiment_method:
-  method: "transformer"
+  method:     "transformer"      # "vader" or "transformer"
   model_name: "ProsusAI/finbert"
-sentiment_window_days: 1  # aggregate sentiment over this many days
+sentiment_window_days: 1        # aggregate sentiment over this many days
 
-# 5) Feature‐engineering parameters
+# 5) Feature-engineering parameters
 feature_engineering:
-  ma_short_window: 5   # moving average window (short)
-  ma_long_window: 20   # moving average window (long)
+  ma_short_window:   5   # moving average window (short)
+  ma_long_window:   20   # moving average window (long)
   volatility_window: 10  # rolling volatility window
 
 # 6) Model hyperparameters
 model:
-  type: "MLP"
+  type:         "MLP"
   hidden_layers:
     - 64
     - 32
-  dropout_rate: 0.2
+  dropout_rate:  0.2
   learning_rate: 0.001
-  epochs: 50
-  batch_size: 32
+  epochs:        50
+  batch_size:    32
 
 # 7) Backtest settings
 backtest:
-  initial_capital: 100000
-  transaction_cost: 0.001  # fraction per trade
+  initial_capital:   100000
+  transaction_cost:  0.001    # fraction per trade
 
 # 8) Alpaca (for paper/live trading)
 alpaca:
-  api_key: "YOUR_API_KEY"
-  secret_key: "YOUR_SECRET_KEY"
-  base_url: "https://paper-api.alpaca.markets"
+  api_key:       "YOUR_API_KEY"
+  secret_key:    "YOUR_SECRET_KEY"
+  base_url:      "https://paper-api.alpaca.markets"
   paper_trading: true
 
 # 9) News API (NewsAPI.org)
@@ -62,22 +62,19 @@ twitter_bearer_token: "YOUR_TWITTER_BEARER_TOKEN"
 
 # 11) Reddit API (PRAW)
 reddit:
-  client_id: "YOUR_REDDIT_CLIENT_ID"
+  client_id:     "YOUR_REDDIT_CLIENT_ID"
   client_secret: "YOUR_REDDIT_CLIENT_SECRET"
-  user_agent: "stock-sentiment-bot/0.1"
+  user_agent:    "stock-sentiment-bot/0.1"
 
 # 12) RSS feeds for financial blogs
 rss_feeds:
-  "https://www.reutersagency.com/feed/?best-sectors=finance"
-  "https://www.marketwatch.com/rss"
+  - "https://www.reutersagency.com/feed/?best-sectors=finance"
+  - "https://www.marketwatch.com/rss"
 
 # 13) SEC EDGAR filings
 edgar:
-  download_dir: "data/raw/edgar"
-  user_agent: "your_email@example.com"
+  download_dir:     "data/raw/edgar"
+  user_agent:       "your_email@example.com"
   filings_to_fetch:
     - "10-K"
     - "10-Q"
-
-
-  
